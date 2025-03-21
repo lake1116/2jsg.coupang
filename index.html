@@ -249,9 +249,7 @@
         const price = parseInt(productItem.getAttribute('data-price'));
         const productName = productItem.querySelector('h3').textContent;
         const isSelected = productItem.classList.contains('selected');
-        if (src == "images/homerunball.webp") {
-            alert("준비 중인 상품은 선택할 수 없습니다.");
-        } else if (isSelected) {
+        if (isSelected) {
             totalPrice -= price;
             selectedProducts = selectedProducts.filter(name => name !== productName);
         } else {

@@ -24,3 +24,13 @@ function toggleSelection(productItem) {
         ? `선택한 상품: ${selectedProducts.join(', ')}` 
         : "선택한 상품: 없음";
 }
+    function num_name(event){
+            var name_num = document.getElementById("name_num").value;
+            if (selectedProducts.join(', ') == 0) {
+            alert("상품을 선택해주세요.");
+            } else if (name_num == 0) {
+            alert("학번과 이름을 입력해주세요.");
+            } else {
+            alert(name_num + "\n" + selectedProducts.join(', ') + "\n" + totalPrice.toLocaleString() + "원");
+            }    
+        }

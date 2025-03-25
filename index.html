@@ -274,9 +274,31 @@
             } else if (name_num == 0) {
             alert("학번과 이름을 입력해주세요.");
             } else {
-            alert(name_num + "\n" + selectedProducts.join(', ') + "\n" + totalPrice.toLocaleString() + "원");
+            // 서버로 보낼 데이터
+            const orderData = {
+              name: name_num,
+              products: selectedProducts,
+              total: totalPrice
+            };
+
+          // 서버에 POST 요청 보내기
+           fetch("http://localhost:3000/order", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderData)
+            })
+            .then(response => response.json())
+            .then(data => {
+              alert(data.message); // 서버 응답 메시지 출력
+            })
+            .catch(error => {
+              console.error("에러 발생:", error);
+              alert("주문을 보내는 중 문제가 발생했습니다.");
+            });
             }    
-        }
+          }
 </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

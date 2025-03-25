@@ -1,66 +1,46 @@
-// server.js
-const express = require('express');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
 
 const app = express();
-const PORT = 3000;
+const port = 3000;
+
+app.use(cors());
+app.use(express.json());
 
 // MongoDB 연결
-mongoose.connect('mongodb://localhost:27017/itemsDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect("mongodb://127.0.0.1:27017/orderDB", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log("MongoDB 연결 성공!"))
+.catch(err => console.error("MongoDB 연결 오류:", err));
+
+// 주문 스키마 및 모델 생성
+const orderSchema = new mongoose.Schema({
+    name: String,
+    products: [String],
+    total: Number
 });
 
-// 스키마 수정 (이름 + 물품 저장)
-const itemSchema = new mongoose.Schema({
-  name: String,
-  item: String,
+const Order = mongoose.model("Order", orderSchema);
+
+// 주문을 저장하는 API
+app.post("/order", async (req, res) => {
+    const { name, products, total } = req.body;
+
+    try {
+        const newOrder = new Order({ name, products, total });
+        await newOrder.save();
+        console.log(`주문 저장 완료: ${name}, ${products.join(", ")}, ${total}원`);
+
+        res.json({ message: "주문이 성공적으로 저장되었습니다!" });
+    } catch (error) {
+        console.error("주문 저장 중 오류 발생:", error);
+        res.status(500).json({ message: "서버 오류 발생" });
+    }
 });
 
-const Item = mongoose.model('Item', itemSchema);
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-
-// 홈 페이지 - 데이터 조회
-app.get('/', async (req, res) => {
-  const items = await Item.find();
-  res.render('index', { items });
-});
-
-// 데이터 추가 (이름 + 물품)
-app.post('/add', async (req, res) => {
-  const newItem = new Item({ 
-    name: req.body.name, 
-    item: req.body.item 
-  });
-  await newItem.save();
-  res.redirect('/');
-});
-
-// 데이터 삭제
-app.post('/delete/:id', async (req, res) => {
-  await Item.findByIdAndDelete(req.params.id);
-  res.redirect('/');
-});
-
-// 데이터 수정 페이지
-app.get('/edit/:id', async (req, res) => {
-  const item = await Item.findById(req.params.id);
-  res.render('edit', { item });
-});
-
-// 데이터 수정 처리
-app.post('/edit/:id', async (req, res) => {
-  await Item.findByIdAndUpdate(req.params.id, { 
-    name: req.body.name, 
-    item: req.body.item 
-  });
-  res.redirect('/');
-});
-
-app.listen(PORT, () => {
-  console.log(`서버 실행 중: http://localhost:${PORT}`);
+app.listen(port, () => {
+    console.log(`서버 실행 중: http://localhost:${port}`);
 });
